@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "/pb";
+
+service DeliveryService {
+  rpc AssignOrder (AssignOrderRequest) returns (AssignOrderResponse);
+  rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (UpdateOrderStatusResponse);
+}
+
+message AssignOrderRequest {
+  int64 order_id = 1;
+  double latitude = 2;
+  double longitude = 3;
+}
+
+message AssignOrderResponse {
+  string message = 1;
+  int64 delivery_person_id = 2;
+}
+
+message UpdateOrderStatusRequest {
+  int64 order_id = 1;
+  string status = 2;
+}
+
+message UpdateOrderStatusResponse {
+  string message = 1;
+}
