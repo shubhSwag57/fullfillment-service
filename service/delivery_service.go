@@ -7,6 +7,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"io/ioutil"
 	"log"
@@ -85,4 +86,49 @@ func (s *DeliveryServiceImpl) UpdateOrderStatus(ctx context.Context, req *pb.Upd
 	return &pb.UpdateOrderStatusResponse{
 		Message: "Order status updated successfully",
 	}, nil
+}
+
+func (s *DeliveryServiceImpl) RegisterDeliveryPerson(ctx context.Context, req *pb.RegisterRequest) (*pb.RegisterResponse, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, errors.New("failed to hash password")
+	}
+
+	deliveryPerson := models.DeliveryPerson{
+		Name:      req.Name,
+		Password:  string(hashedPassword),
+		Available: true,
+	}
+	if err := db.DB.Create(&deliveryPerson).Error; err != nil {
+		return nil, errors.New("name already taken")
+	}
+
+	return &pb.RegisterResponse{Message: "Registration successful"}, nil
+}
+
+func (s *DeliveryServiceImpl) LoginDeliveryPerson(ctx context.Context, req *pb.LoginRequest) (*pb.LoginResponse, error) {
+	var deliveryPerson models.DeliveryPerson
+	if err := db.DB.Where("name = ?", req.Name).First(&deliveryPerson).Error; err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(deliveryPerson.Password), []byte(req.Password)); err != nil {
+		return nil, errors.New("invalid credentials")
+	}
+
+	return &pb.LoginResponse{Id: deliveryPerson.ID, Message: "Login successful"}, nil
+}
+
+func (s *DeliveryServiceImpl) UpdateLocation(ctx context.Context, req *pb.UpdateLocationRequest) (*pb.UpdateLocationResponse, error) {
+	var deliveryPerson models.DeliveryPerson
+	if err := db.DB.First(&deliveryPerson, req.Id).Error; err != nil {
+		return nil, errors.New("delivery person not found")
+	}
+
+	db.DB.Model(&deliveryPerson).Updates(models.DeliveryPerson{
+		Latitude:  req.Latitude,
+		Longitude: req.Longitude,
+	})
+
+	return &pb.UpdateLocationResponse{Message: "Location updated successfully"}, nil
 }

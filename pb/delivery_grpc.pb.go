@@ -19,14 +19,20 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	DeliveryService_AssignOrder_FullMethodName       = "/pb.DeliveryService/AssignOrder"
-	DeliveryService_UpdateOrderStatus_FullMethodName = "/pb.DeliveryService/UpdateOrderStatus"
+	DeliveryService_RegisterDeliveryPerson_FullMethodName = "/pb.DeliveryService/RegisterDeliveryPerson"
+	DeliveryService_LoginDeliveryPerson_FullMethodName    = "/pb.DeliveryService/LoginDeliveryPerson"
+	DeliveryService_UpdateLocation_FullMethodName         = "/pb.DeliveryService/UpdateLocation"
+	DeliveryService_AssignOrder_FullMethodName            = "/pb.DeliveryService/AssignOrder"
+	DeliveryService_UpdateOrderStatus_FullMethodName      = "/pb.DeliveryService/UpdateOrderStatus"
 )
 
 // DeliveryServiceClient is the client API for DeliveryService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DeliveryServiceClient interface {
+	RegisterDeliveryPerson(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
+	LoginDeliveryPerson(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error)
+	UpdateLocation(ctx context.Context, in *UpdateLocationRequest, opts ...grpc.CallOption) (*UpdateLocationResponse, error)
 	AssignOrder(ctx context.Context, in *AssignOrderRequest, opts ...grpc.CallOption) (*AssignOrderResponse, error)
 	UpdateOrderStatus(ctx context.Context, in *UpdateOrderStatusRequest, opts ...grpc.CallOption) (*UpdateOrderStatusResponse, error)
 }
@@ -37,6 +43,36 @@ type deliveryServiceClient struct {
 
 func NewDeliveryServiceClient(cc grpc.ClientConnInterface) DeliveryServiceClient {
 	return &deliveryServiceClient{cc}
+}
+
+func (c *deliveryServiceClient) RegisterDeliveryPerson(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(RegisterResponse)
+	err := c.cc.Invoke(ctx, DeliveryService_RegisterDeliveryPerson_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deliveryServiceClient) LoginDeliveryPerson(ctx context.Context, in *LoginRequest, opts ...grpc.CallOption) (*LoginResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(LoginResponse)
+	err := c.cc.Invoke(ctx, DeliveryService_LoginDeliveryPerson_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *deliveryServiceClient) UpdateLocation(ctx context.Context, in *UpdateLocationRequest, opts ...grpc.CallOption) (*UpdateLocationResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateLocationResponse)
+	err := c.cc.Invoke(ctx, DeliveryService_UpdateLocation_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *deliveryServiceClient) AssignOrder(ctx context.Context, in *AssignOrderRequest, opts ...grpc.CallOption) (*AssignOrderResponse, error) {
@@ -63,6 +99,9 @@ func (c *deliveryServiceClient) UpdateOrderStatus(ctx context.Context, in *Updat
 // All implementations must embed UnimplementedDeliveryServiceServer
 // for forward compatibility.
 type DeliveryServiceServer interface {
+	RegisterDeliveryPerson(context.Context, *RegisterRequest) (*RegisterResponse, error)
+	LoginDeliveryPerson(context.Context, *LoginRequest) (*LoginResponse, error)
+	UpdateLocation(context.Context, *UpdateLocationRequest) (*UpdateLocationResponse, error)
 	AssignOrder(context.Context, *AssignOrderRequest) (*AssignOrderResponse, error)
 	UpdateOrderStatus(context.Context, *UpdateOrderStatusRequest) (*UpdateOrderStatusResponse, error)
 	mustEmbedUnimplementedDeliveryServiceServer()
@@ -75,6 +114,15 @@ type DeliveryServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedDeliveryServiceServer struct{}
 
+func (UnimplementedDeliveryServiceServer) RegisterDeliveryPerson(context.Context, *RegisterRequest) (*RegisterResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterDeliveryPerson not implemented")
+}
+func (UnimplementedDeliveryServiceServer) LoginDeliveryPerson(context.Context, *LoginRequest) (*LoginResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginDeliveryPerson not implemented")
+}
+func (UnimplementedDeliveryServiceServer) UpdateLocation(context.Context, *UpdateLocationRequest) (*UpdateLocationResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateLocation not implemented")
+}
 func (UnimplementedDeliveryServiceServer) AssignOrder(context.Context, *AssignOrderRequest) (*AssignOrderResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AssignOrder not implemented")
 }
@@ -100,6 +148,60 @@ func RegisterDeliveryServiceServer(s grpc.ServiceRegistrar, srv DeliveryServiceS
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&DeliveryService_ServiceDesc, srv)
+}
+
+func _DeliveryService_RegisterDeliveryPerson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RegisterRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeliveryServiceServer).RegisterDeliveryPerson(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeliveryService_RegisterDeliveryPerson_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeliveryServiceServer).RegisterDeliveryPerson(ctx, req.(*RegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeliveryService_LoginDeliveryPerson_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(LoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeliveryServiceServer).LoginDeliveryPerson(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeliveryService_LoginDeliveryPerson_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeliveryServiceServer).LoginDeliveryPerson(ctx, req.(*LoginRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _DeliveryService_UpdateLocation_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateLocationRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DeliveryServiceServer).UpdateLocation(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: DeliveryService_UpdateLocation_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DeliveryServiceServer).UpdateLocation(ctx, req.(*UpdateLocationRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _DeliveryService_AssignOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -145,6 +247,18 @@ var DeliveryService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "pb.DeliveryService",
 	HandlerType: (*DeliveryServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "RegisterDeliveryPerson",
+			Handler:    _DeliveryService_RegisterDeliveryPerson_Handler,
+		},
+		{
+			MethodName: "LoginDeliveryPerson",
+			Handler:    _DeliveryService_LoginDeliveryPerson_Handler,
+		},
+		{
+			MethodName: "UpdateLocation",
+			Handler:    _DeliveryService_UpdateLocation_Handler,
+		},
 		{
 			MethodName: "AssignOrder",
 			Handler:    _DeliveryService_AssignOrder_Handler,
