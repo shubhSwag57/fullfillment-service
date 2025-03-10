@@ -5,6 +5,10 @@
   option go_package = "/pb";
 
   service DeliveryService {
+    rpc RegisterDeliveryPerson (RegisterRequest) returns (RegisterResponse);
+    rpc LoginDeliveryPerson (LoginRequest) returns (LoginResponse);
+    rpc UpdateLocation (UpdateLocationRequest) returns (UpdateLocationResponse);
+
     rpc AssignOrder (AssignOrderRequest) returns (AssignOrderResponse);
     rpc UpdateOrderStatus (UpdateOrderStatusRequest) returns (UpdateOrderStatusResponse);
   }
@@ -26,5 +30,34 @@
   }
 
   message UpdateOrderStatusResponse {
+    string message = 1;
+  }
+
+  message RegisterRequest {
+    string name = 1;
+    string password = 2;
+  }
+
+  message RegisterResponse {
+    string message = 1;
+  }
+
+  message LoginRequest {
+    string name = 1;
+    string password = 2;
+  }
+
+  message LoginResponse {
+    int64 id = 1;
+    string message = 2;
+  }
+
+  message UpdateLocationRequest {
+    int64 id = 1;
+    double latitude = 2;
+    double longitude = 3;
+  }
+
+  message UpdateLocationResponse {
     string message = 1;
   }
