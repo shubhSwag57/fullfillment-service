@@ -5,6 +5,7 @@ import (
 	"DeliveryService/models"
 	"DeliveryService/pb"
 	"context"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"golang.org/x/crypto/bcrypt"
@@ -28,6 +29,7 @@ func (s *DeliveryServiceImpl) AssignOrder(ctx context.Context, req *pb.AssignOrd
 	}
 
 	order := models.Order{
+		ID:               req.OrderId,
 		DeliveryPersonID: deliveryPerson.ID,
 		Status:           "ASSIGNED",
 	}
@@ -54,13 +56,29 @@ func (s *DeliveryServiceImpl) UpdateOrderStatus(ctx context.Context, req *pb.Upd
 	orderID := req.GetOrderId()
 	status := req.GetStatus()
 
-	url := fmt.Sprintf("http://localhost:8085/orders/%s/status?status=%s", orderID, status)
+	url := fmt.Sprintf("http://localhost:8082/api/orders/%d/status?status=%s", orderID, status)
 	client := &http.Client{}
 	request, err := http.NewRequest("PUT", url, nil)
 	if err != nil {
 		log.Printf("Error creating request: %v", err)
 		return nil, err
 	}
+
+	//client := &http.Client{}
+	//
+	//// ✅ Create the HTTP request
+	//reqBody := strings.NewReader("") // No body needed for PUT request
+	//request, err := http.NewRequest("PUT", url, reqBody)
+	//if err != nil {
+	//	log.Printf("Error creating request: %v", err)
+	//	return nil, err
+	//}
+
+	// ✅ Set Basic Authentication header (This is the Fix)
+	username := "admin"
+	password := "admin123"
+	auth := base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", username, password)))
+	request.Header.Set("Authorization", "Basic "+auth)
 
 	resp, err := client.Do(request)
 	if err != nil {
